@@ -7,6 +7,8 @@ class DatabaseService extends GetxController {
   FirebaseFirestore firestore;
   FirebaseAuth auth;
 
+  bool valuefirst = false;
+
   RegExp regExp = new RegExp(
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
 
@@ -40,6 +42,15 @@ class DatabaseService extends GetxController {
       _email = TodoModel(value, null);
     } else {
       _email = TodoModel(null, 'Enter correct format');
+    }
+    update();
+  }
+
+  void changeBool(bool value) {
+    if (valuefirst = false) {
+      valuefirst = false;
+    } else {
+      valuefirst = true;
     }
     update();
   }

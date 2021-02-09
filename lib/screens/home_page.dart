@@ -47,9 +47,10 @@ class _HomePageState extends State<HomePage> {
                           dbservice.todoChange(value);
                         },
                         decoration: InputDecoration(
-                            errorText: dbservice.todo.error,
-                            hintText: 'Add your todo',
-                            hintStyle: TextStyle(color: Colors.black)),
+                          errorText: dbservice.todo.error,
+                          hintText: 'Add your todo',
+                          hintStyle: TextStyle(color: Colors.black),
+                        ),
                       ),
                       trailing: RaisedButton(
                         color: Colors.lightBlue,
@@ -59,6 +60,37 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+              ),
+              StreamBuilder(
+                stream: dbservice.firestore.collection('todo').snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, index) {
+                      if (snapshot.hasData) {
+                        return ListTile(
+                          title: snapshot.data[index],
+                          trailing: Checkbox(
+                            value: dbservice.valuefirst,
+                            checkColor: Colors.greenAccent,
+                            activeColor: Colors.red,
+                            onChanged: (bool value) {
+                              dbservice.changeBool(value);
+                            },
+                          ),
+                        );
+                      }
+                      return Center(
+                        child: Text('No data!'),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
