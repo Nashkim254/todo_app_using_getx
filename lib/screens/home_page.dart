@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/services/database_service.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final dbservice = Get.put(DatabaseService());
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.lightBlue),
+      theme: ThemeData(
+          brightness: Brightness.light, primaryColor: Colors.lightBlue),
       home: Scaffold(
         appBar: AppBar(
           title: Text('Todo App'),
@@ -35,20 +43,23 @@ class HomePage extends StatelessWidget {
                     color: Colors.grey,
                     child: ListTile(
                       title: TextField(
+                        onChanged: (String value) {
+                          dbservice.todoChange(value);
+                        },
                         decoration: InputDecoration(
+                            errorText: dbservice.todo.error,
                             hintText: 'Add your todo',
                             hintStyle: TextStyle(color: Colors.black)),
                       ),
                       trailing: RaisedButton(
                         color: Colors.lightBlue,
-                        onPressed: () {},
+                        onPressed: (!dbservice.isValid) ? null : dbservice.save,
                         child: Text('Add'.toUpperCase()),
                       ),
                     ),
                   ),
                 ),
               ),
-              ListView()
             ],
           ),
         ),
