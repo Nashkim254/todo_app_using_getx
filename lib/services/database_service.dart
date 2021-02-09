@@ -87,6 +87,8 @@ class DatabaseService extends GetxController {
     } catch (e) {
       print(e.toString());
     }
+
+    update();
   }
 
   void save() {

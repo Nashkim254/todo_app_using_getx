@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/screens/home_page.dart';
 import 'package:todo_app/services/database_service.dart';
 
 class Signup extends StatelessWidget {
@@ -40,7 +41,14 @@ class Signup extends StatelessWidget {
               height: 40.0,
             ),
             RaisedButton(
-              onPressed: (!register.isValid) ? null : register.signup,
+              onPressed: () {
+                if (!register.isValid) {
+                  return null;
+                } else {
+                  register.signup();
+                }
+                Get.to(HomePage());
+              },
               child: Text('Signup'),
               color: Colors.lightBlue,
             ),

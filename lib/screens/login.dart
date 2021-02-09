@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/screens/home_page.dart';
 import 'package:todo_app/screens/signup.dart';
 import 'package:todo_app/services/database_service.dart';
 
@@ -41,7 +42,14 @@ class Login extends StatelessWidget {
               height: 40.0,
             ),
             RaisedButton(
-              onPressed: (!register.isValid) ? null : register.login,
+              onPressed: () {
+                if (!register.isValid) {
+                  return null;
+                } else {
+                  register.login();
+                }
+                Get.to(HomePage());
+              },
               child: Text('Login'),
               color: Colors.lightBlue,
             ),
