@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/controllers/auth_controller.dart';
 import 'package:todo_app/screens/home_page.dart';
 import 'package:todo_app/services/database_service.dart';
 
-class Signup extends StatelessWidget {
+class Signup extends GetWidget<AuthController> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final register = Get.put(DatabaseService());
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign up'),
@@ -17,24 +20,27 @@ class Signup extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              onChanged: (value) {
-                register.emailChange(value);
-              },
+              controller: nameController,
               decoration: InputDecoration(
-                hintText: 'Email',
-                errorText: register.email.error,
+                hintText: 'Name',
               ),
             ),
             SizedBox(
               height: 40.0,
             ),
             TextField(
-              onChanged: (value) {
-                register.passChange(value);
-              },
+              controller: emailController,
+              decoration: InputDecoration(
+                hintText: 'Email',
+              ),
+            ),
+            SizedBox(
+              height: 40.0,
+            ),
+            TextField(
+              controller: passwordController,
               decoration: InputDecoration(
                 hintText: 'Password',
-                errorText: register.pass.error,
               ),
             ),
             SizedBox(
@@ -42,11 +48,8 @@ class Signup extends StatelessWidget {
             ),
             RaisedButton(
               onPressed: () {
-                if (!register.isValid) {
-                  return null;
-                } else {
-                  register.signup();
-                }
+                controller.signupUser(nameController.text, emailController.text,
+                    passwordController.text);
                 Get.to(HomePage());
               },
               child: Text('Signup'),

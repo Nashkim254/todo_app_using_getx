@@ -1,103 +1,100 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 import 'package:todo_app/model/todo_model.dart';
+import 'package:todo_app/model/user_model.dart';
 
-class DatabaseService extends GetxController {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-
-  bool valuefirst = false;
-
-  RegExp regExp = new RegExp(
-      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
-
-  TodoModel _todo = TodoModel(null, null);
-  TodoModel _email = TodoModel(null, null);
-  TodoModel _pass = TodoModel(null, null);
-
-  TodoModel get todo => _todo;
-  TodoModel get email => _email;
-  TodoModel get pass => _pass;
-
-  bool get isValid {
-    if (_todo != null) {
+class Database {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  // create user method
+  Future<bool> createNewUser(UserModel user) async {
+    try {
+      await firestore.collection("users").doc(user.id).set({
+        "name": user.name,
+        "email": user.email,
+      });
       return true;
-    } else {
+    } catch (e) {
+      print(e);
       return false;
     }
   }
+  // signIn user method
 
-  void todoChange(String value) {
-    if (value.length >= 3) {
-      _todo = TodoModel(value, null);
-    } else {
-      _todo = TodoModel(null, 'Value must be atleast 3 characters');
-    }
-    update();
-  }
-
-  void emailChange(String value) {
-    if (regExp.hasMatch(value)) {
-      _email = TodoModel(value, null);
-    } else {
-      _email = TodoModel(null, 'Enter correct format');
-    }
-    update();
-  }
-
-  void changeBool(bool value) {
-    if (valuefirst = false) {
-      valuefirst = false;
-    } else {
-      valuefirst = true;
-    }
-    update();
-  }
-
-  void passChange(String value) {
-    if (value.length >= 6) {
-      _pass = TodoModel(value, null);
-    } else {
-      _pass = TodoModel(null, 'Atleast 6 characters');
-    }
-    update();
-  }
-
-  void signup() async {
-    UserCredential result;
+  Future<void> signinUser(emailController, passwordController) async {
     try {
-      result = await auth.createUserWithEmailAndPassword(
-          email: email.value, password: pass.value);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController, password: passwordController);
     } catch (e) {
       print(e.toString());
     }
-    firestore
-        .collection('users')
-        .doc(result.user.uid)
-        .set({'email': email.value});
-
-    update();
   }
 
-  void login() async {
-    try {
-      UserCredential result = await auth.signInWithEmailAndPassword(
-          email: email.value, password: pass.value);
-    } catch (e) {
-      print(e.toString());
-    }
-
-    update();
+  //signOut method
+  void signoutUser() {
+    FirebaseAuth.instance.signOut();
   }
 
-  void save() {
-    User user;
+  // get user
+
+  Future<UserModel> getUser(String uid) async {
     try {
-      firestore.collection('todo').doc(user.uid).set({'todo': todo.value});
+      DocumentSnapshot _doc =
+          await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      return UserModel.fromDocumentSnapshot(documentSnapshot: _doc);
     } catch (e) {
-      print(e.toString());
+      print(e);
+      rethrow;
     }
-    update();
+  }
+
+  //add todo
+
+  Future<void> addTodo(String content, String uid) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .collection("todos")
+          .add({
+        'dateCreated': Timestamp.now(),
+        'content': content,
+        'done': false,
+      });
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Stream<List<TodoModel>> todoStream(String uid) {
+    return firestore
+        .collection("users")
+        .doc(uid)
+        .collection("todos")
+        .orderBy("dateCreated", descending: true)
+        .snapshots()
+        .map((QuerySnapshot query) {
+      List<TodoModel> retVal = List();
+      query.docs.forEach((element) {
+        retVal.add(TodoModel.fromDocumentSnapshot(element));
+      });
+      return retVal;
+    });
+  }
+
+  Future<void> updateTodo(bool newValue, String uid, String todoId) async {
+    try {
+      firestore
+          .collection("users")
+          .doc(uid)
+          .collection("todos")
+          .doc(todoId)
+          .update({"done": newValue});
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 }

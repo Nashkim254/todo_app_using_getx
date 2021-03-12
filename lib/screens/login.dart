@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/controllers/auth_controller.dart';
 import 'package:todo_app/screens/home_page.dart';
 import 'package:todo_app/screens/signup.dart';
 import 'package:todo_app/services/database_service.dart';
 
-class Login extends StatelessWidget {
+class Login extends GetWidget<AuthController> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final register = Get.put(DatabaseService());
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
@@ -18,24 +20,18 @@ class Login extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              onChanged: (value) {
-                register.emailChange(value);
-              },
+              controller: emailController,
               decoration: InputDecoration(
                 hintText: 'Email',
-                errorText: register.email.error,
               ),
             ),
             SizedBox(
               height: 40.0,
             ),
             TextField(
-              onChanged: (value) {
-                register.passChange(value);
-              },
+              controller: passwordController,
               decoration: InputDecoration(
                 hintText: 'Password',
-                errorText: register.pass.error,
               ),
             ),
             SizedBox(
@@ -43,11 +39,7 @@ class Login extends StatelessWidget {
             ),
             RaisedButton(
               onPressed: () {
-                if (!register.isValid) {
-                  return null;
-                } else {
-                  register.login();
-                }
+                controller.login(emailController.text, passwordController.text);
                 Get.to(HomePage());
               },
               child: Text('Login'),

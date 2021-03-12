@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:todo_app/controllers/authBinding.dart';
+import 'package:todo_app/screens/home_page.dart';
 import 'package:todo_app/screens/login.dart';
+import 'package:todo_app/utils/root.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,19 +17,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.blue),
+      initialBinding: AuthBinding(),
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        brightness: Brightness.dark,
+      ),
       home: FutureBuilder(
         future: _initialization,
-        builder: (context, snapshot) {
+        builder: (BuildContext context, snapshot) {
           if (snapshot.hasError) {
-            return Text('Something is wrong');
+            return Text('something went wrong');
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            return Login();
+            return HomePage();
           }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return Root();
         },
       ),
     );
